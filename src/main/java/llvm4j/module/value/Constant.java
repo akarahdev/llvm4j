@@ -7,10 +7,8 @@ import llvm4j.module.type.Type;
 import java.util.List;
 
 public sealed interface Constant<V extends Constant<V>> extends Value<V> {
-    ///
     /// The two strings `true` and `false` are both valid constants of the i1 type.
     /// @param value The boolean value to represent, `true` or `false`.
-    ///
     record Boolean(boolean value) implements Constant<Boolean> {
         @Override
         public void compile(StringCompiler stringBuilder) {
@@ -18,10 +16,8 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
         }
     }
 
-    ///
     /// Standard integers (such as `4`) are constants of the integer type.
     /// @param value The value of the integer to encode.
-    ///
     record Integer(long value) implements Constant<Integer> {
         @Override
         public void compile(StringCompiler stringBuilder) {
@@ -139,5 +135,45 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
             stringBuilder.append('!')
                     .append(wrapped);
         }
+    }
+
+    static Constant.Integer integer(long value) {
+        return new Constant.Integer(value);
+    }
+
+    static Constant.Float floating(double value) {
+        return new Constant.Float(value);
+    }
+
+    static Constant.Boolean bool(boolean value) {
+        return new Constant.Boolean(value);
+    }
+
+    static Constant.Null null_() {
+        return new Constant.Null();
+    }
+
+    static Constant.Undef undef() {
+        return new Constant.Undef();
+    }
+
+    static Constant.Poison poison() {
+        return new Constant.Poison();
+    }
+
+    static Constant.None none() {
+        return new Constant.None();
+    }
+
+    static Constant.Array array(List<TypeValuePair<?, ?>> values) {
+        return new Constant.Array(values);
+    }
+
+    static Constant.Vector vector(List<TypeValuePair<?, ?>> values) {
+        return new Constant.Vector(values);
+    }
+
+    static Constant.Structure struct(List<TypeValuePair<?, ?>> values) {
+        return new Constant.Structure(values);
     }
 }

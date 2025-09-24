@@ -2,6 +2,7 @@ package llvm4j.compile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
 
 public class StringCompiler {
     StringBuilder inner = new StringBuilder();
@@ -56,6 +57,24 @@ public class StringCompiler {
 
     public StringCompiler append(double s) {
         this.inner.append(s);
+        return this;
+    }
+
+    public StringCompiler tabulate() {
+        return this.tabulate(4);
+    }
+
+    public StringCompiler tabulate(int count) {
+        return this.append("\n" + " ".repeat(count));
+    }
+
+    public StringCompiler append(String s, Compilable... args) {
+        for(var arg : args) {
+            int idx = s.indexOf("{}");
+            if (idx == -1) break;
+            s = s.substring(0, idx) + arg.compile() + s.substring(idx + 2);
+        }
+        this.append(s);
         return this;
     }
 

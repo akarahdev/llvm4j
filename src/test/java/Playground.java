@@ -17,13 +17,14 @@ void main() {
             .withBody(
                     FunctionBody.builder()
                             .withCode(
-                                    bb -> bb.branch(
+                                    bb -> bb.br(
                                             bb.add(
-                                                    bb.bool(true).pair(new Type.Integer(1)),
-                                                    bb.bool(true).pair(new Type.Integer(1))
+                                                    new Type.Integer(1),
+                                                    Constant.bool(true),
+                                                    Constant.bool(false)
                                             ),
-                                            bb2 -> bb2.ret(bb2.integer(100).pair(new Type.Integer(32))),
-                                            bb2 -> bb2.ret(bb2.integer(200).pair(new Type.Integer(32)))
+                                            bb2 -> bb2.ret(Constant.integer(100).pair(new Type.Integer(32))),
+                                            bb2 -> bb2.ret(Constant.integer(200).pair(new Type.Integer(32)))
                                     )
                             )
                             .build()

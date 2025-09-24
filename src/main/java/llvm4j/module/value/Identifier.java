@@ -2,13 +2,32 @@ package llvm4j.module.value;
 
 import llvm4j.compile.StringCompiler;
 
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public sealed interface Identifier<V extends Value<V>> extends Value<V> {
+    AtomicInteger INDEX_COUNTER = new AtomicInteger();
+
     record Global(String identifier) implements Identifier<Global> {
 
     }
 
     record Local(String identifier) implements Identifier<Local> {
 
+    }
+
+    static Global global(String identifier) {
+        assert identifier.matches("[-a-zA-Z$._][-a-zA-Z$._0-9]*");
+        return new Global(identifier);
+    }
+
+    static Local local(String identifier) {
+        assert identifier.matches("[-a-zA-Z$._][-a-zA-Z$._0-9]*");
+        return new Local(identifier);
+    }
+
+    static Local localRandom() {
+        return Identifier.local("_" + INDEX_COUNTER.addAndGet(1));
     }
 
     String identifier();
