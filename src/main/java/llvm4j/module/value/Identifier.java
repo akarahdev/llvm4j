@@ -2,12 +2,12 @@ package llvm4j.module.value;
 
 import llvm4j.compile.StringCompiler;
 
-public sealed interface Identifier extends Value {
-    record Global(String identifier) implements Identifier {
+public sealed interface Identifier<V extends Value<V>> extends Value<V> {
+    record Global(String identifier) implements Identifier<Global> {
 
     }
 
-    record Local(String identifier) implements Identifier {
+    record Local(String identifier) implements Identifier<Local> {
 
     }
 

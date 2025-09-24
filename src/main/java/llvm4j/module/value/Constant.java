@@ -6,12 +6,12 @@ import llvm4j.module.type.Type;
 
 import java.util.List;
 
-public sealed interface Constant extends Value {
+public sealed interface Constant<V extends Constant<V>> extends Value<V> {
     ///
     /// The two strings `true` and `false` are both valid constants of the i1 type.
     /// @param value The boolean value to represent, `true` or `false`.
     ///
-    record Boolean(boolean value) implements Constant {
+    record Boolean(boolean value) implements Constant<Boolean> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append(this.value ? "true" : "false");
@@ -22,7 +22,7 @@ public sealed interface Constant extends Value {
     /// Standard integers (such as `4`) are constants of the integer type.
     /// @param value The value of the integer to encode.
     ///
-    record Integer(long value) implements Constant {
+    record Integer(long value) implements Constant<Integer> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append(this.value);
@@ -31,7 +31,7 @@ public sealed interface Constant extends Value {
 
     /// Floating-point constants must have a floating-point type.
     /// @param value The value of the floating-point to encode.
-    record Float(double value) implements Constant {
+    record Float(double value) implements Constant<Float> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append(this.value);
@@ -39,7 +39,7 @@ public sealed interface Constant extends Value {
     }
 
     /// The identifier `null` is recognized as a null pointer constant and must be of {@link Type.Pointer} type.
-    record Null() implements Constant {
+    record Null() implements Constant<Null> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("null");
@@ -49,7 +49,7 @@ public sealed interface Constant extends Value {
     /// The string `undef` can be used anywhere a constant is expected and indicates that the user of the value
     /// may receive an unspecified bit-pattern. Undefined values may be of any type (other than `label` or `void``)
     /// and be used anywhere a constant is permitted.
-    record Undef() implements Constant {
+    record Undef() implements Constant<Undef> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("undef");
@@ -75,7 +75,7 @@ public sealed interface Constant extends Value {
     /// - The callee operand of a `call` or `invoke` instruction.
     /// - The parameter operand of a `call` or `invoke` instruction, when the function or invoking call site has a `noundef` attribute in the corresponding position.
     /// - The operand of a `ret` instruction if the function or invoking call site has a `noundef` attribute in the return value position.
-    record Poison() implements Constant {
+    record Poison() implements Constant<Poison> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("poison");
@@ -83,7 +83,7 @@ public sealed interface Constant extends Value {
     }
 
     /// The identifier `none` is recognized as an empty token constant and must be of {@link Type.Token} type.
-    record None() implements Constant {
+    record None() implements Constant<None> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("none");
@@ -94,7 +94,7 @@ public sealed interface Constant extends Value {
     /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link Type.Structure}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Structure(List<TypeValuePair> value) implements Constant {
+    record Structure(List<TypeValuePair<?, ?>> value) implements Constant<Structure> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("{")
@@ -107,7 +107,7 @@ public sealed interface Constant extends Value {
     /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link Type.Array}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Array(List<TypeValuePair> value) implements Constant {
+    record Array(List<TypeValuePair<?, ?>> value) implements Constant<Array> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("[")
@@ -120,7 +120,7 @@ public sealed interface Constant extends Value {
     /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link Type.Vector}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Vector(List<TypeValuePair> value) implements Constant {
+    record Vector(List<TypeValuePair<?, ?>> value) implements Constant<Vector> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("<")
@@ -133,7 +133,7 @@ public sealed interface Constant extends Value {
     /// Unlike other typed constants that are meant to be interpreted as part of the instruction stream,
     /// metadata is a place to attach additional information such as debug info.
     /// @param wrapped The value to wrap as a metadata node.
-    record Metadata(Value wrapped) implements Constant {
+    record Metadata<E extends Value<E>>(Value<E> wrapped) implements Constant<Metadata<E>> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('!')

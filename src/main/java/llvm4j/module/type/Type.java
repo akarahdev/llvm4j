@@ -2,13 +2,15 @@ package llvm4j.module.type;
 
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
+import llvm4j.module.TypeValuePair;
 import llvm4j.module.value.Identifier;
+import llvm4j.module.value.Value;
 
 import java.util.List;
 
-public sealed interface Type extends Compilable {
+public sealed interface Type<T extends Type<T>> extends Compilable {
     /// The `void` type does not represent any value and has no size.
-    record Void() implements Type {
+    record Void() implements Type<Void> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("void");
@@ -21,7 +23,7 @@ public sealed interface Type extends Compilable {
     ///
     /// It is not possible to create SSA values with an opaque structure type.
     /// In practice, this largely limits their use to the value type of external globals.
-    record Opaque() implements Type {
+    record Opaque() implements Type<Opaque> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("opaque");
@@ -29,7 +31,7 @@ public sealed interface Type extends Compilable {
     }
 
     /// The `label` type represents code labels.
-    record Label() implements Type {
+    record Label() implements Type<Label> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("label");
@@ -40,7 +42,7 @@ public sealed interface Type extends Compilable {
     /// of the value must not attempt to introspect or obscure it.
     ///
     /// As such, it is not appropriate to have a `phi` or `select` of type `token`.
-    record Token() implements Type {
+    record Token() implements Type<Token> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("token");
@@ -50,7 +52,7 @@ public sealed interface Type extends Compilable {
     /// The `metadata` type represents embedded metadata.
     ///
     /// No derived types may be created from metadata except for function arguments.
-    record Metadata() implements Type {
+    record Metadata() implements Type<Metadata> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("metadata");
@@ -63,7 +65,7 @@ public sealed interface Type extends Compilable {
     ///
     /// @param returned The return type of the function type.
     /// @param inputs The parameter types of the function type.
-    record Function(Type returned, List<Type> inputs) implements Type {
+    record Function<R extends Type<R>>(R returned, List<? extends Type<?>> inputs) implements Type<Function<R>> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append(returned.toString())
@@ -73,7 +75,7 @@ public sealed interface Type extends Compilable {
         }
     }
 
-    record Named(Identifier identifier) implements Type {
+    record Named(Identifier identifier) implements Type<Named> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append(identifier);
@@ -85,7 +87,7 @@ public sealed interface Type extends Compilable {
     /// can be specified.
     ///
     /// @param bits The bits of the integer to use.
-    record Integer(int bits) implements Type {
+    record Integer(int bits) implements Type<Integer> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('i').append(this.bits);
@@ -101,7 +103,7 @@ public sealed interface Type extends Compilable {
     ///
     /// @param inner The inner type of the vector.
     /// @param size The size of the vector.
-    record Vector(Type inner, int size) implements Type {
+    record Vector<E extends Type<E>>(Type<E> inner, int size) implements Type<Vector<E>> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('<')
@@ -116,7 +118,7 @@ public sealed interface Type extends Compilable {
     /// The array type requires a size (number of elements) and an underlying data type.
     /// @param inner The element type of the array.
     /// @param size The size of the array.
-    record Array(Type inner, int size) implements Type {
+    record Array<E extends Type<E>>(Type<E> inner, int size) implements Type<Array<E>> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('[')
@@ -130,7 +132,7 @@ public sealed interface Type extends Compilable {
     /// The structure type is used to represent a collection of data members
     /// together in memory. The elements of a structure may be any type that has a size.
     /// @param types The members of the structure type.
-    record Structure(List<Type> types) implements Type {
+    record Structure(List<Type<?>> types) implements Type<Structure> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('{')
@@ -149,7 +151,7 @@ public sealed interface Type extends Compilable {
     /// code generator expects.
     ///
     /// @param types The members of the structure type.
-    record PackedStructure(List<Type> types) implements Type {
+    record PackedStructure(List<Type<?>> types) implements Type<PackedStructure> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("<{")
@@ -160,10 +162,15 @@ public sealed interface Type extends Compilable {
 
     /// The pointer type ptr is used to specify memory locations.
     /// Pointers are commonly used to reference objects in memory.
-    record Pointer() implements Type {
+    record Pointer() implements Type<Pointer> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("ptr");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    default <V extends Value<V>> TypeValuePair<T, V> pair(V value) {
+        return new TypeValuePair<>((T) this, value);
     }
 }
