@@ -1,7 +1,8 @@
 import llvm4j.module.Function;
+import llvm4j.module.TypeValuePair;
 import llvm4j.module.code.FunctionBody;
-import llvm4j.type.Type;
-import llvm4j.value.Identifier;
+import llvm4j.module.type.Type;
+import llvm4j.module.value.Identifier;
 
 void main() {
     var f = new Function(
@@ -18,7 +19,7 @@ void main() {
             new Identifier.Global("smth"),
             new Type.Integer(32),
             List.of(
-                    new Function.Parameter(
+                    new TypeValuePair(
                             new Identifier.Local("abc"),
                             new Type.Structure(List.of(new Type.Integer(16), new Type.Integer(32)))
                     )

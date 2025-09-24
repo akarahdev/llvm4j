@@ -3,10 +3,8 @@ package llvm4j.module;
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.code.FunctionBody;
-import llvm4j.module.config.CallingConvention;
-import llvm4j.module.config.LinkageType;
-import llvm4j.type.Type;
-import llvm4j.value.Identifier;
+import llvm4j.module.type.Type;
+import llvm4j.module.value.Identifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +12,7 @@ import java.util.Optional;
 public record Function(
         Identifier name,
         Type returnType,
-        List<Parameter> parameters,
+        List<TypeValuePair> parameters,
         Optional<FunctionBody> functionBody
 ) implements Compilable {
     @Override
@@ -31,15 +29,4 @@ public record Function(
                 .append(this.functionBody);
     }
 
-    public record Parameter(
-            Identifier name,
-            Type type
-    ) implements Compilable {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(type)
-                    .append(' ')
-                    .append(name);
-        }
-    }
 }

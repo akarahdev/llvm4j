@@ -1,7 +1,8 @@
-package llvm4j.value;
+package llvm4j.module.value;
 
 import llvm4j.compile.StringCompiler;
-import llvm4j.module.Function;
+import llvm4j.module.TypeValuePair;
+import llvm4j.module.type.Type;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public sealed interface Constant extends Value {
         }
     }
 
-    /// The identifier `null` is recognized as a null pointer constant and must be of {@link llvm4j.type.Type.Pointer} type.
+    /// The identifier `null` is recognized as a null pointer constant and must be of {@link Type.Pointer} type.
     record Null() implements Constant {
         @Override
         public void compile(StringCompiler stringBuilder) {
@@ -81,7 +82,7 @@ public sealed interface Constant extends Value {
         }
     }
 
-    /// The identifier `none` is recognized as an empty token constant and must be of {@link llvm4j.type.Type.Token} type.
+    /// The identifier `none` is recognized as an empty token constant and must be of {@link Type.Token} type.
     record None() implements Constant {
         @Override
         public void compile(StringCompiler stringBuilder) {
@@ -90,10 +91,10 @@ public sealed interface Constant extends Value {
     }
 
     /// Structure constants are represented with notation similar to structure type definitions (a comma-separated
-    /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link llvm4j.type.Type.Structure}
+    /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link Type.Structure}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Structure(List<Function.Parameter> value) implements Constant {
+    record Structure(List<TypeValuePair> value) implements Constant {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("{")
@@ -103,10 +104,10 @@ public sealed interface Constant extends Value {
     }
 
     /// Array constants are represented with notation similar to array type definitions (a comma-separated list of
-    /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link llvm4j.type.Type.Array}
+    /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link Type.Array}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Array(List<Function.Parameter> value) implements Constant {
+    record Array(List<TypeValuePair> value) implements Constant {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("[")
@@ -116,10 +117,10 @@ public sealed interface Constant extends Value {
     }
 
     /// Vector constants are represented with notation similar to vector type definitions (a comma-separated list
-    /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link llvm4j.type.Type.Vector}
+    /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link Type.Vector}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Vector(List<Function.Parameter> value) implements Constant {
+    record Vector(List<TypeValuePair> value) implements Constant {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("<")

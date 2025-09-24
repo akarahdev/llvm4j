@@ -1,4 +1,4 @@
-package llvm4j.value;
+package llvm4j.module.value;
 
 import llvm4j.compile.StringCompiler;
 
