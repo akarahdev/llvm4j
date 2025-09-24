@@ -31,6 +31,10 @@ public sealed interface Identifier extends Value {
         return Identifier.local("_" + INDEX_COUNTER.addAndGet(1));
     }
 
+    static Global globalRandom() {
+        return Identifier.global("_" + INDEX_COUNTER.addAndGet(1));
+    }
+
     String identifier();
 
     @Override
