@@ -17,7 +17,8 @@ public record Function(
         Identifier.Global name,
         Type returnType,
         List<TypeIdentifierPair> parameters,
-        Optional<FunctionBody> functionBody
+        Optional<FunctionBody> functionBody,
+        boolean varargs
 ) implements Compilable {
     @Override
     public void compile(StringCompiler stringBuilder) {
@@ -28,6 +29,7 @@ public record Function(
                 .append(name)
                 .append('(')
                 .append(this.parameters, ", ")
+                .appendIf(() -> this.varargs, sc -> sc.append(", ..."))
                 .append(')')
                 .append(' ')
                 .append(this.functionBody);
@@ -42,6 +44,7 @@ public record Function(
         Type returnType = Type.voidType();
         List<TypeIdentifierPair> parameters = new ArrayList<>();
         Optional<FunctionBody> functionBody = Optional.empty();
+        boolean varargs = false;
 
         private Builder(Identifier.Global name) {
             this.name = name;
@@ -66,12 +69,18 @@ public record Function(
             return this;
         }
 
+        public Builder withVarargs() {
+            this.varargs = true;
+            return this;
+        }
+
         public Function build() {
             return new Function(
                     this.name,
                     this.returnType,
                     this.parameters,
-                    this.functionBody
+                    this.functionBody,
+                    this.varargs
             );
         }
     }

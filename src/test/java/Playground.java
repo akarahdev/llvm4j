@@ -8,6 +8,8 @@ void main() {
             .withFunction(
                     Identifier.global("main"),
                     fb -> fb.withReturnType(Type.integer(32))
+                            .withParameter(Identifier.localRandom().parameterized(Type.ptr()))
+                            .withVarargs()
                             .withCode(bb -> {
                                 var myVar = bb.alloca(Type.integer(32));
 
