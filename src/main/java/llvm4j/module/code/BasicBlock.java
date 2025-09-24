@@ -3,9 +3,7 @@ package llvm4j.module.code;
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.TypeValuePair;
-import llvm4j.module.code.builder.ArithmeticInstructionHook;
-import llvm4j.module.code.builder.BasicBlockBuilderHook;
-import llvm4j.module.code.builder.ControlFlowInstructionHook;
+import llvm4j.module.code.builder.*;
 import llvm4j.module.type.Type;
 import llvm4j.module.value.Constant;
 import llvm4j.module.value.Identifier;
@@ -34,7 +32,8 @@ public record BasicBlock(
     }
 
     public static class Builder implements
-            BasicBlockBuilderHook, ArithmeticInstructionHook<Builder>, ControlFlowInstructionHook<Builder> {
+            BasicBlockBuilderHook, ArithmeticInstructionHook<Builder>, ControlFlowInstructionHook<Builder>,
+            AggregateInstructions<Builder>, VectorInstruction<Builder> {
         Identifier.Local identifier;
         List<Instruction> instructions = new ArrayList<>();
         FunctionBody.Builder functionBuilder;

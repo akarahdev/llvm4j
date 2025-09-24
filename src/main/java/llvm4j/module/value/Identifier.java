@@ -5,14 +5,14 @@ import llvm4j.compile.StringCompiler;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public sealed interface Identifier<V extends Value<V>> extends Value<V> {
+public sealed interface Identifier extends Value {
     AtomicInteger INDEX_COUNTER = new AtomicInteger();
 
-    record Global(String identifier) implements Identifier<Global> {
+    record Global(String identifier) implements Identifier {
 
     }
 
-    record Local(String identifier) implements Identifier<Local> {
+    record Local(String identifier) implements Identifier {
 
     }
 

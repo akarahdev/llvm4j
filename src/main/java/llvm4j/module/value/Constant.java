@@ -4,9 +4,10 @@ import llvm4j.compile.StringCompiler;
 import llvm4j.module.TypeValuePair;
 import llvm4j.module.type.Type;
 
+import java.util.Arrays;
 import java.util.List;
 
-public sealed interface Constant<V extends Constant<V>> extends Value<V> {
+public sealed interface Constant<V extends Constant<V>> extends Value {
     /// The two strings `true` and `false` are both valid constants of the i1 type.
     /// @param value The boolean value to represent, `true` or `false`.
     record Boolean(boolean value) implements Constant<Boolean> {
@@ -90,7 +91,7 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
     /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link Type.Structure}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Structure(List<TypeValuePair<?, ?>> value) implements Constant<Structure> {
+    record Structure(List<TypeValuePair> value) implements Constant<Structure> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("{")
@@ -103,7 +104,7 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
     /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link Type.Array}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Array(List<TypeValuePair<?, ?>> value) implements Constant<Array> {
+    record Array(List<TypeValuePair> value) implements Constant<Array> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("[")
@@ -116,7 +117,7 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
     /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link Type.Vector}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param value
-    record Vector(List<TypeValuePair<?, ?>> value) implements Constant<Vector> {
+    record Vector(List<TypeValuePair> value) implements Constant<Vector> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append("<")
@@ -129,7 +130,7 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
     /// Unlike other typed constants that are meant to be interpreted as part of the instruction stream,
     /// metadata is a place to attach additional information such as debug info.
     /// @param wrapped The value to wrap as a metadata node.
-    record Metadata<E extends Value<E>>(Value<E> wrapped) implements Constant<Metadata<E>> {
+    record Metadata<E extends Value>(Value wrapped) implements Constant<Metadata<E>> {
         @Override
         public void compile(StringCompiler stringBuilder) {
             stringBuilder.append('!')
@@ -165,15 +166,29 @@ public sealed interface Constant<V extends Constant<V>> extends Value<V> {
         return new Constant.None();
     }
 
-    static Constant.Array array(List<TypeValuePair<?, ?>> values) {
+    static Constant.Array array(List<TypeValuePair> values) {
         return new Constant.Array(values);
     }
 
-    static Constant.Vector vector(List<TypeValuePair<?, ?>> values) {
+    static Constant.Array array(Type type, Value... values) {
+        return new Constant.Array(Arrays.stream(values)
+                .map(x -> x.pair(type))
+                .toList());
+    }
+
+    static Constant.Vector vector(List<TypeValuePair> values) {
         return new Constant.Vector(values);
     }
 
-    static Constant.Structure struct(List<TypeValuePair<?, ?>> values) {
+    static Constant.Vector vector(TypeValuePair... values) {
+        return new Constant.Vector(Arrays.asList(values));
+    }
+
+    static Constant.Structure struct(List<TypeValuePair> values) {
         return new Constant.Structure(values);
+    }
+
+    static Constant.Structure struct(TypeValuePair... values) {
+        return new Constant.Structure(Arrays.asList(values));
     }
 }

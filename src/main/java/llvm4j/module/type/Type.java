@@ -3,18 +3,16 @@ package llvm4j.module.type;
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.TypeValuePair;
+import llvm4j.module.value.Constant;
 import llvm4j.module.value.Identifier;
 import llvm4j.module.value.Value;
 
 import java.util.List;
 
-public sealed interface Type<T extends Type<T>> extends Compilable {
+public interface Type extends Compilable {
     /// The `void` type does not represent any value and has no size.
-    record Void() implements Type<Void> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("void");
-        }
+    static Type voidType() {
+        return sc -> sc.append("void");
     }
 
     /// Opaque structure types are used to represent structure types that do not have a body specified.
@@ -23,40 +21,28 @@ public sealed interface Type<T extends Type<T>> extends Compilable {
     ///
     /// It is not possible to create SSA values with an opaque structure type.
     /// In practice, this largely limits their use to the value type of external globals.
-    record Opaque() implements Type<Opaque> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("opaque");
-        }
+    static Type opaque() {
+        return sc -> sc.append("opaque");
     }
 
     /// The `label` type represents code labels.
-    record Label() implements Type<Label> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("label");
-        }
+    static Type label() {
+        return sc -> sc.append("label");
     }
 
     /// The `token` type is used when a value is associated with an instruction, but all uses
     /// of the value must not attempt to introspect or obscure it.
     ///
     /// As such, it is not appropriate to have a `phi` or `select` of type `token`.
-    record Token() implements Type<Token> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("token");
-        }
+    static Type token() {
+        return sc -> sc.append("token");
     }
 
     /// The `metadata` type represents embedded metadata.
     ///
     /// No derived types may be created from metadata except for function arguments.
-    record Metadata() implements Type<Metadata> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("metadata");
-        }
+    static Type metadata() {
+        return sc -> sc.append("metadata");
     }
 
     /// The function type can be thought of as a function signature.
@@ -65,21 +51,12 @@ public sealed interface Type<T extends Type<T>> extends Compilable {
     ///
     /// @param returned The return type of the function type.
     /// @param inputs The parameter types of the function type.
-    record Function<R extends Type<R>>(R returned, List<? extends Type<?>> inputs) implements Type<Function<R>> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(returned.toString())
-                    .append('(')
-                    .append(inputs, ", ")
-                    .append(')');
-        }
+    static Type function(Type returned, List<? extends Type> inputs) {
+        return sc -> sc.append(returned.toString()).append('(').append(inputs, ", ").append(')');
     }
 
-    record Named(Identifier identifier) implements Type<Named> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(identifier);
-        }
+    static Type named(Identifier identifier) {
+        return sc -> sc.append(identifier);
     }
 
     /// The integer type is a very simple type that simply specifies an arbitrary bit width
@@ -87,11 +64,8 @@ public sealed interface Type<T extends Type<T>> extends Compilable {
     /// can be specified.
     ///
     /// @param bits The bits of the integer to use.
-    record Integer(int bits) implements Type<Integer> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append('i').append(this.bits);
-        }
+    static Type integer(int bits) {
+        return sc -> sc.append('i').append(bits);
     }
 
     /// A vector type is a simple derived type that represents a vector of elements.
@@ -103,42 +77,23 @@ public sealed interface Type<T extends Type<T>> extends Compilable {
     ///
     /// @param inner The inner type of the vector.
     /// @param size The size of the vector.
-    record Vector<E extends Type<E>>(Type<E> inner, int size) implements Type<Vector<E>> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append('<')
-                    .append(inner)
-                    .append(" x ")
-                    .append(size)
-                    .append('>');
-        }
+    static Type vector(int size, Type inner) {
+        return sc -> sc.append("<{} x {}>", size, inner);
     }
 
     /// The array type is a very simple derived type that arranges elements sequentially in memory.
     /// The array type requires a size (number of elements) and an underlying data type.
     /// @param inner The element type of the array.
     /// @param size The size of the array.
-    record Array<E extends Type<E>>(Type<E> inner, int size) implements Type<Array<E>> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append('[')
-                    .append(inner)
-                    .append(" x ")
-                    .append(size)
-                    .append(']');
-        }
+    static Type array(int size, Type inner) {
+        return sc -> sc.append("[{} x {}]", size, inner);
     }
 
     /// The structure type is used to represent a collection of data members
     /// together in memory. The elements of a structure may be any type that has a size.
     /// @param types The members of the structure type.
-    record Structure(List<Type<?>> types) implements Type<Structure> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append('{')
-                    .append(this.types, ", ")
-                    .append('}');
-        }
+    static Type struct(List<Type> types) {
+        return sc -> sc.append('{').append(types, ", ").append('}');
     }
 
     /// Variant of the {@link Structure} type, where all members are packed
@@ -151,26 +106,17 @@ public sealed interface Type<T extends Type<T>> extends Compilable {
     /// code generator expects.
     ///
     /// @param types The members of the structure type.
-    record PackedStructure(List<Type<?>> types) implements Type<PackedStructure> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("<{")
-                    .append(this.types, ", ")
-                    .append("}>");
-        }
+    static Type packedStruct(List<Type> types) {
+        return sc -> sc.append("<{").append(types, ", ").append("}>");
     }
 
     /// The pointer type ptr is used to specify memory locations.
     /// Pointers are commonly used to reference objects in memory.
-    record Pointer() implements Type<Pointer> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("ptr");
-        }
+    static Type ptr() {
+        return sc -> sc.append("ptr");
     }
 
-    @SuppressWarnings("unchecked")
-    default <V extends Value<V>> TypeValuePair<T, V> pair(V value) {
-        return new TypeValuePair<>((T) this, value);
+    default <V extends Value> TypeValuePair pair(V value) {
+        return new TypeValuePair(this, value);
     }
 }

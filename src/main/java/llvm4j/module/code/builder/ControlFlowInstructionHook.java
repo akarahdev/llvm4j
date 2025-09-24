@@ -10,12 +10,12 @@ public interface ControlFlowInstructionHook<T extends ControlFlowInstructionHook
         return (T) this;
     }
 
-    default T ret(TypeValuePair<?, ?> typeValuePair) {
+    default T ret(TypeValuePair typeValuePair) {
         this.instructions().add(sc -> sc.append("ret {}", typeValuePair));
         return (T) this;
     }
 
-    default T br(Value<?> condition, BasicBlock.BuildMapper then, BasicBlock.BuildMapper orElse) {
+    default T br(Value condition, BasicBlock.BuildMapper then, BasicBlock.BuildMapper orElse) {
         var bb1 = then.apply(new BasicBlock.Builder(this.functionBuilder())).build();
         var bb2 = orElse.apply(new BasicBlock.Builder(this.functionBuilder())).build();
         this.children().add(bb1);

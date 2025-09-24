@@ -5,9 +5,9 @@ import llvm4j.compile.StringCompiler;
 import llvm4j.module.type.Type;
 import llvm4j.module.value.Value;
 
-public record TypeValuePair<T extends Type<T>, V extends Value<V>>(
-        T type,
-        V value
+public record TypeValuePair(
+        Type type,
+        Value value
 ) implements Compilable {
     @Override
     public void compile(StringCompiler stringBuilder) {

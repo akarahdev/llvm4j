@@ -68,11 +68,15 @@ public class StringCompiler {
         return this.append("\n" + " ".repeat(count));
     }
 
-    public StringCompiler append(String s, Compilable... args) {
+    public StringCompiler append(String s, Object... args) {
         for(var arg : args) {
             int idx = s.indexOf("{}");
             if (idx == -1) break;
-            s = s.substring(0, idx) + arg.compile() + s.substring(idx + 2);
+            if(arg instanceof Compilable compilable) {
+                s = s.substring(0, idx) + compilable.compile() + s.substring(idx + 2);
+            } else {
+                s = s.substring(0, idx) + arg.toString() + s.substring(idx + 2);
+            }
         }
         this.append(s);
         return this;

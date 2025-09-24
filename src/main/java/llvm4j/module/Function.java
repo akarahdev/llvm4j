@@ -14,8 +14,8 @@ import java.util.Optional;
 
 public record Function(
         Identifier.Global name,
-        Type<?> returnType,
-        List<TypeValuePair<?, Identifier.Local>> parameters,
+        Type returnType,
+        List<TypeValuePair> parameters,
         Optional<FunctionBody> functionBody
 ) implements Compilable {
     @Override
@@ -38,20 +38,20 @@ public record Function(
 
     public static class Builder {
         Identifier.Global name;
-        Type<?> returnType = new Type.Void();
-        List<TypeValuePair<?, Identifier.Local>> parameters = new ArrayList<>();
+        Type returnType = Type.voidType();
+        List<TypeValuePair> parameters = new ArrayList<>();
         Optional<FunctionBody> functionBody = Optional.empty();
 
         private Builder(Identifier.Global name) {
             this.name = name;
         }
 
-        public Builder withReturnType(Type<?> type) {
+        public Builder withReturnType(Type type) {
             this.returnType = type;
             return this;
         }
 
-        public Builder withParameter(TypeValuePair<?, Identifier.Local> parameter) {
+        public Builder withParameter(TypeValuePair parameter) {
             this.parameters.add(parameter);
             return this;
         }
