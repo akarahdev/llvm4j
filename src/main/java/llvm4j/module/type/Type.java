@@ -1,11 +1,7 @@
 package llvm4j.module.type;
 
 import llvm4j.compile.Compilable;
-import llvm4j.compile.StringCompiler;
-import llvm4j.module.TypeValuePair;
-import llvm4j.module.value.Constant;
-import llvm4j.module.value.Identifier;
-import llvm4j.module.value.Value;
+import llvm4j.module.value.*;
 
 import java.util.List;
 
@@ -116,7 +112,15 @@ public interface Type extends Compilable {
         return sc -> sc.append("ptr");
     }
 
-    default <V extends Value> TypeValuePair pair(V value) {
+    default TypeValuePair pair(Value value) {
         return new TypeValuePair(this, value);
+    }
+
+    default TypeConstantPair constantTyped(Constant other) {
+        return new TypeConstantPair(this, other);
+    }
+
+    default TypeIdentifierPair idTyped(Identifier other) {
+        return new TypeIdentifierPair(this, other);
     }
 }

@@ -1,7 +1,6 @@
 package llvm4j.module.code.builder;
 
-import llvm4j.module.TypeValuePair;
-import llvm4j.module.type.Type;
+import llvm4j.module.value.TypeValuePair;
 import llvm4j.module.value.Identifier;
 import llvm4j.module.value.Value;
 

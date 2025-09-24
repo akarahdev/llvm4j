@@ -1,6 +1,7 @@
 package llvm4j.module.value;
 
 import llvm4j.compile.StringCompiler;
+import llvm4j.module.type.Type;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +40,10 @@ public sealed interface Identifier extends Value {
             case Local _ -> stringBuilder.append("%");
         }
         stringBuilder.append(this.identifier());
+    }
+
+    default TypeIdentifierPair parameterized(Type other) {
+        return new TypeIdentifierPair(other, this);
     }
 
 }

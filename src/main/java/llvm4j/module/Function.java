@@ -2,12 +2,13 @@ package llvm4j.module;
 
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
+import llvm4j.module.code.BasicBlock;
 import llvm4j.module.code.FunctionBody;
 import llvm4j.module.type.Type;
 import llvm4j.module.value.Identifier;
-import llvm4j.module.value.Value;
+import llvm4j.module.value.TypeIdentifierPair;
+import llvm4j.module.value.TypeValuePair;
 
-import javax.swing.plaf.ButtonUI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public record Function(
         Identifier.Global name,
         Type returnType,
-        List<TypeValuePair> parameters,
+        List<TypeIdentifierPair> parameters,
         Optional<FunctionBody> functionBody
 ) implements Compilable {
     @Override
@@ -39,7 +40,7 @@ public record Function(
     public static class Builder {
         Identifier.Global name;
         Type returnType = Type.voidType();
-        List<TypeValuePair> parameters = new ArrayList<>();
+        List<TypeIdentifierPair> parameters = new ArrayList<>();
         Optional<FunctionBody> functionBody = Optional.empty();
 
         private Builder(Identifier.Global name) {
@@ -51,13 +52,17 @@ public record Function(
             return this;
         }
 
-        public Builder withParameter(TypeValuePair parameter) {
+        public Builder withParameter(TypeIdentifierPair parameter) {
             this.parameters.add(parameter);
             return this;
         }
 
-        public Builder withBody(FunctionBody body) {
-            this.functionBody = Optional.of(body);
+        public Builder withCode(BasicBlock.BuildMapper consumer) {
+            return this.withBody(builder -> builder.withCode(consumer));
+        }
+
+        public Builder withBody(java.util.function.Function<FunctionBody.Builder, FunctionBody.Builder> body) {
+            this.functionBody = Optional.of(body.apply(new FunctionBody.Builder()).build());
             return this;
         }
 

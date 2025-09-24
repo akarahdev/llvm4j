@@ -1,56 +1,38 @@
 package llvm4j.module.value;
 
-import llvm4j.compile.StringCompiler;
-import llvm4j.module.TypeValuePair;
 import llvm4j.module.type.Type;
 
-import java.util.Arrays;
 import java.util.List;
 
-public sealed interface Constant<V extends Constant<V>> extends Value {
+public interface Constant extends Value {
     /// The two strings `true` and `false` are both valid constants of the i1 type.
     /// @param value The boolean value to represent, `true` or `false`.
-    record Boolean(boolean value) implements Constant<Boolean> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(this.value ? "true" : "false");
-        }
+    static Constant bool(boolean value) {
+        return sc -> sc.append(value ? "true" : "false");
     }
 
     /// Standard integers (such as `4`) are constants of the integer type.
     /// @param value The value of the integer to encode.
-    record Integer(long value) implements Constant<Integer> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(this.value);
-        }
+    static Constant integer(long value) {
+        return sc -> sc.append(value);
     }
 
     /// Floating-point constants must have a floating-point type.
     /// @param value The value of the floating-point to encode.
-    record Float(double value) implements Constant<Float> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append(this.value);
-        }
+    static Constant floating(double value) {
+        return sc -> sc.append(value);
     }
 
     /// The identifier `null` is recognized as a null pointer constant and must be of {@link Type.Pointer} type.
-    record Null() implements Constant<Null> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("null");
-        }
+    static Constant null_() {
+        return sc -> sc.append("null");
     }
 
     /// The string `undef` can be used anywhere a constant is expected and indicates that the user of the value
-    /// may receive an unspecified bit-pattern. Undefined values may be of any type (other than `label` or `void``)
+    /// may receive an unspecified bit-pattern. Undefined values may be of any type (other than `label` or `void`)
     /// and be used anywhere a constant is permitted.
-    record Undef() implements Constant<Undef> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("undef");
-        }
+    static Constant undef() {
+        return sc -> sc.append("undef");
     }
 
     /// A poison value is a result of an erroneous operation.
@@ -72,123 +54,48 @@ public sealed interface Constant<V extends Constant<V>> extends Value {
     /// - The callee operand of a `call` or `invoke` instruction.
     /// - The parameter operand of a `call` or `invoke` instruction, when the function or invoking call site has a `noundef` attribute in the corresponding position.
     /// - The operand of a `ret` instruction if the function or invoking call site has a `noundef` attribute in the return value position.
-    record Poison() implements Constant<Poison> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("poison");
-        }
+    static Constant poison() {
+        return sc -> sc.append("poison");
     }
 
-    /// The identifier `none` is recognized as an empty token constant and must be of {@link Type.Token} type.
-    record None() implements Constant<None> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("none");
-        }
+    /// The identifier `none` is recognized as an empty token constant and must be of {@link Type#token()} type.
+    static Constant none() {
+        return sc -> sc.append("none");
     }
 
     /// Structure constants are represented with notation similar to structure type definitions (a comma-separated
-    /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link Type.Structure}
+    /// list of elements, surrounded by braces (`{}`)). Structure constants must have {@link Type#struct(List)}
     /// type, and the number and types of elements must match those specified by the type.
-    /// @param value
-    record Structure(List<TypeValuePair> value) implements Constant<Structure> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("{")
-                    .append(this.value, ", ")
-                    .append('}');
-        }
+    /// @param constants List of constants to use
+    static Constant structure(List<TypeConstantPair> constants) {
+        return sc -> sc.append('{').append(constants, ", ").append('}');
     }
 
     /// Array constants are represented with notation similar to array type definitions (a comma-separated list of
-    /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link Type.Array}
+    /// elements, surrounded by square brackets (`[]`)). Array constants must have {@link Type#array(int, Type)}
     /// type, and the number and types of elements must match those specified by the type.
-    /// @param value
-    record Array(List<TypeValuePair> value) implements Constant<Array> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("[")
-                    .append(this.value, ", ")
-                    .append(']');
-        }
+    /// @param constants List of constants to use
+    static Constant array(Type type, List<Constant> constants) {
+        return sc -> sc.append('[').append(constants, ", ").append(']');
     }
 
     /// Vector constants are represented with notation similar to vector type definitions (a comma-separated list
-    /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link Type.Vector}
+    /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link @Type#vector}
     /// type, and the number and types of elements must match those specified by the type.
-    /// @param value
-    record Vector(List<TypeValuePair> value) implements Constant<Vector> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append("<")
-                    .append(this.value, ", ")
-                    .append('>');
-        }
+    /// @param constants List of constants to use
+    static Constant vector(Type type, List<Constant> constants) {
+        return sc -> sc.append('<').append(constants.stream().map(x -> x.typed(type)).toList(), ", ").append('>');
     }
 
     /// A metadata node is a constant tuple without types. Metadata can reference constant values as well.
     /// Unlike other typed constants that are meant to be interpreted as part of the instruction stream,
     /// metadata is a place to attach additional information such as debug info.
     /// @param wrapped The value to wrap as a metadata node.
-    record Metadata<E extends Value>(Value wrapped) implements Constant<Metadata<E>> {
-        @Override
-        public void compile(StringCompiler stringBuilder) {
-            stringBuilder.append('!')
-                    .append(wrapped);
-        }
+    static Constant metadata(Constant node) {
+        return sc -> sc.append('!').append(node);
     }
 
-    static Constant.Integer integer(long value) {
-        return new Constant.Integer(value);
-    }
-
-    static Constant.Float floating(double value) {
-        return new Constant.Float(value);
-    }
-
-    static Constant.Boolean bool(boolean value) {
-        return new Constant.Boolean(value);
-    }
-
-    static Constant.Null null_() {
-        return new Constant.Null();
-    }
-
-    static Constant.Undef undef() {
-        return new Constant.Undef();
-    }
-
-    static Constant.Poison poison() {
-        return new Constant.Poison();
-    }
-
-    static Constant.None none() {
-        return new Constant.None();
-    }
-
-    static Constant.Array array(List<TypeValuePair> values) {
-        return new Constant.Array(values);
-    }
-
-    static Constant.Array array(Type type, Value... values) {
-        return new Constant.Array(Arrays.stream(values)
-                .map(x -> x.pair(type))
-                .toList());
-    }
-
-    static Constant.Vector vector(List<TypeValuePair> values) {
-        return new Constant.Vector(values);
-    }
-
-    static Constant.Vector vector(TypeValuePair... values) {
-        return new Constant.Vector(Arrays.asList(values));
-    }
-
-    static Constant.Structure struct(List<TypeValuePair> values) {
-        return new Constant.Structure(values);
-    }
-
-    static Constant.Structure struct(TypeValuePair... values) {
-        return new Constant.Structure(Arrays.asList(values));
+    default TypeConstantPair constantTyped(Type other) {
+        return new TypeConstantPair(other, this);
     }
 }
