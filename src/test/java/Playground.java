@@ -1,5 +1,7 @@
 import llvm4j.module.Function;
+import llvm4j.module.code.FunctionBody;
 import llvm4j.module.type.Type;
+import llvm4j.module.value.Constant;
 import llvm4j.module.value.Identifier;
 
 void main() {
@@ -10,9 +12,22 @@ void main() {
     System.out.println(f.compile());
 
 
-    f = Function.builder(new Identifier.Global("abc"))
-            .withReturnType(new Type.Void())
-            .withParameter(new Type.Integer(32).pair(new Identifier.Local("param1")))
+    f = Function.builder(new Identifier.Global("main"))
+            .withReturnType(new Type.Integer(32))
+            .withBody(
+                    FunctionBody.builder()
+                            .withCode(
+                                    bb -> bb.branch(
+                                            bb.add(
+                                                    bb.bool(true).pair(new Type.Integer(1)),
+                                                    bb.bool(true).pair(new Type.Integer(1))
+                                            ),
+                                            bb2 -> bb2.ret(bb2.integer(100).pair(new Type.Integer(32))),
+                                            bb2 -> bb2.ret(bb2.integer(200).pair(new Type.Integer(32)))
+                                    )
+                            )
+                            .build()
+            )
             .build();
     System.out.println(f);
     System.out.println(f.compile());
