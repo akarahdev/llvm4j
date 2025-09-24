@@ -48,7 +48,12 @@ public interface Type extends Compilable {
     /// @param returned The return type of the function type.
     /// @param inputs The parameter types of the function type.
     static Type function(Type returned, List<? extends Type> inputs) {
-        return sc -> sc.append(returned.toString()).append('(').append(inputs, ", ").append(')');
+        return sc -> sc.append(returned).append('(').append(inputs, ", ").append(')');
+    }
+
+    static Type function(Type returned, List<? extends Type> inputs, boolean variadic) {
+        return sc -> sc.append(returned).append('(').append(inputs, ", ")
+                .appendIf(() -> variadic, sc2 -> sc2.append(", ...")).append(')');
     }
 
     static Type named(Identifier identifier) {

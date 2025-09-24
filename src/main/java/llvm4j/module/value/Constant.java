@@ -79,6 +79,23 @@ public interface Constant extends Value {
         return sc -> sc.append('[').append(constants, ", ").append(']');
     }
 
+    static TypeConstantPair c_str(String str) {
+        String finalStr = str;
+        Constant constant = sc -> sc.append('c').append('"').append(
+                finalStr.replace("\"", "\\\"")
+                        .replace("\\n", "\\0A")
+        ).append('"');
+        for(int i = 0; i < 256; i++) {
+            if(i >= 16) {
+                str = str.replace("\\" + Integer.toHexString(i).toUpperCase(), "_");
+            } else {
+                str = str.replace("\\0" + Integer.toHexString(i).toUpperCase(), "_");
+            }
+        }
+        return constant.constantTyped(Type.array(str.length(), Type.integer(8)));
+    }
+
+
     /// Vector constants are represented with notation similar to vector type definitions (a comma-separated list
     /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link @Type#vector}
     /// type, and the number and types of elements must match those specified by the type.
