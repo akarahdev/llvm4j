@@ -49,6 +49,16 @@ public class StringCompiler {
         return this;
     }
 
+    public StringCompiler append(long s) {
+        this.inner.append(s);
+        return this;
+    }
+
+    public StringCompiler append(double s) {
+        this.inner.append(s);
+        return this;
+    }
+
     public StringBuilder builder() {
         return this.inner;
     }
