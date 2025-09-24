@@ -2,6 +2,9 @@ package llvm4j.compile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
 public class StringCompiler {
@@ -66,6 +69,11 @@ public class StringCompiler {
 
     public StringCompiler tabulate(int count) {
         return this.append("\n" + " ".repeat(count));
+    }
+
+    public StringCompiler appendIf(Supplier<Boolean> condition, Consumer<StringCompiler> consumer) {
+        if(condition.get()) consumer.accept(this);
+        return this;
     }
 
     public StringCompiler append(String s, Object... args) {

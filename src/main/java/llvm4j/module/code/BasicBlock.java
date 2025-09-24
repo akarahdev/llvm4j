@@ -28,7 +28,7 @@ public record BasicBlock(
 
     public static class Builder implements
             BasicBlockBuilderHook, ArithmeticInstructionHook<Builder>, ControlFlowInstructionHook<Builder>,
-            AggregateInstructions<Builder>, VectorInstruction<Builder> {
+            AggregateInstructions<Builder>, VectorInstruction<Builder>, MemoryInstruction<Builder> {
         Identifier.Local identifier;
         List<Instruction> instructions = new ArrayList<>();
         FunctionBody.Builder functionBuilder;
