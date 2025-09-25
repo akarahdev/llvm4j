@@ -28,7 +28,7 @@ public interface ControlFlowInstructionHook<T extends ControlFlowInstructionHook
         return (T) this;
     }
 
-    default Value call(TypeValuePair functionPointer, List<TypeValuePair> arguments) {
+    default Value callTyped(TypeValuePair functionPointer, List<TypeValuePair> arguments) {
         var id = Identifier.localRandom();
         this.instructions().add(
                 sc -> sc.append("{} = call {}", id, functionPointer)
@@ -37,5 +37,15 @@ public interface ControlFlowInstructionHook<T extends ControlFlowInstructionHook
                         .append(')')
         );
         return id;
+    }
+
+    default T callVoid(TypeValuePair functionPointer, List<TypeValuePair> arguments) {
+        this.instructions().add(
+                sc -> sc.append("call {}", functionPointer)
+                        .append('(')
+                        .append(arguments, ", ")
+                        .append(')')
+        );
+        return (T) this;
     }
 }
