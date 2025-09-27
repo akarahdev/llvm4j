@@ -1,6 +1,5 @@
 package llvm4j.module.value;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.type.Type;

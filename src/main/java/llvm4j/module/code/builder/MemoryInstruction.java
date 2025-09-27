@@ -59,6 +59,7 @@ public interface MemoryInstruction<T extends MemoryInstruction<T>>
         VOLATILE,
     }
 
+    @SuppressWarnings("unchecked")
     default T store(
         TypeValuePair storingValue,
         Value pointer,

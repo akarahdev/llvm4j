@@ -10,7 +10,6 @@ import llvm4j.module.code.FunctionBody;
 import llvm4j.module.type.Type;
 import llvm4j.module.value.Identifier;
 import llvm4j.module.value.TypeIdentifierPair;
-import llvm4j.module.value.TypeValuePair;
 
 public record Function(
     Identifier.Global name,
