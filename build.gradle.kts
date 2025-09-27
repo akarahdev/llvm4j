@@ -1,20 +1,17 @@
-plugins {
-    id("java")
-}
+plugins { id("java") }
 
 group = "llvm4j"
+
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
 }
 
 tasks.test {
-    useJUnitPlatform()
+	failOnNoDiscoveredTests = false
 }
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(24) } }
