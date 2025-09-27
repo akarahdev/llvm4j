@@ -31,7 +31,8 @@ public record BasicBlock(
             AggregateInstructions<Builder>,
             VectorInstruction<Builder>,
             MemoryInstruction<Builder>,
-            MiscInstruction<Builder> {
+            MiscInstruction<Builder>,
+            ConversionInstruction<Builder> {
 
         Identifier.Local identifier;
         List<Instruction> instructions = new ArrayList<>();
