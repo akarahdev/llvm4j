@@ -1,8 +1,7 @@
 package llvm4j.module.value;
 
-import llvm4j.module.type.Type;
-
 import java.util.List;
+import llvm4j.module.type.Type;
 
 public interface Constant extends Value {
     /// The two strings `true` and `false` are both valid constants of the i1 type.
@@ -81,27 +80,46 @@ public interface Constant extends Value {
 
     static TypeConstantPair c_str(String str) {
         String finalStr = str;
-        Constant constant = sc -> sc.append('c').append('"').append(
-                finalStr.replace("\"", "\\\"")
-                        .replace("\\n", "\\0A")
-        ).append('"');
-        for(int i = 0; i < 256; i++) {
-            if(i >= 16) {
-                str = str.replace("\\" + Integer.toHexString(i).toUpperCase(), "_");
+        Constant constant = sc ->
+            sc
+                .append('c')
+                .append('"')
+                .append(finalStr.replace("\"", "\\\"").replace("\\n", "\\0A"))
+                .append('"');
+        for (int i = 0; i < 256; i++) {
+            if (i >= 16) {
+                str = str.replace(
+                    "\\" + Integer.toHexString(i).toUpperCase(),
+                    "_"
+                );
             } else {
-                str = str.replace("\\0" + Integer.toHexString(i).toUpperCase(), "_");
+                str = str.replace(
+                    "\\0" + Integer.toHexString(i).toUpperCase(),
+                    "_"
+                );
             }
         }
-        return constant.constantTyped(Type.array(str.length(), Type.integer(8)));
+        return constant.constantTyped(
+            Type.array(str.length(), Type.integer(8))
+        );
     }
-
 
     /// Vector constants are represented with notation similar to vector type definitions (a comma-separated list
     /// of elements, surrounded by less-than/greater-than’s (`<>`)). Vector constants must have {@link @Type#vector}
     /// type, and the number and types of elements must match those specified by the type.
     /// @param constants List of constants to use
     static Constant vector(Type type, List<Constant> constants) {
-        return sc -> sc.append('<').append(constants.stream().map(x -> x.typed(type)).toList(), ", ").append('>');
+        return sc ->
+            sc
+                .append('<')
+                .append(
+                    constants
+                        .stream()
+                        .map(x -> x.typed(type))
+                        .toList(),
+                    ", "
+                )
+                .append('>');
     }
 
     /// A metadata node is a constant tuple without types. Metadata can reference constant values as well.

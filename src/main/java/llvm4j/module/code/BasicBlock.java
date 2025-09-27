@@ -1,34 +1,39 @@
 package llvm4j.module.code;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.code.builder.*;
 import llvm4j.module.value.Identifier;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public record BasicBlock(
-        Identifier.Local identifier,
-        List<Instruction> instructions,
-        List<BasicBlock> children
+    Identifier.Local identifier,
+    List<Instruction> instructions,
+    List<BasicBlock> children
 ) implements Compilable {
-
     @Override
     public void compile(StringCompiler stringBuilder) {
         stringBuilder
-                .append("\n  ")
-                .append(this.identifier.identifier())
-                .append(": ")
-                .append("\n    ")
-                .append(this.instructions, "\n    ");
+            .append("\n  ")
+            .append(this.identifier.identifier())
+            .append(": ")
+            .append("\n    ")
+            .append(this.instructions, "\n    ");
         stringBuilder.append(this.children, "");
     }
 
-    public static class Builder implements
-            BasicBlockBuilderHook, ArithmeticInstructionHook<Builder>, ControlFlowInstructionHook<Builder>,
-            AggregateInstructions<Builder>, VectorInstruction<Builder>, MemoryInstruction<Builder>, MiscInstruction<Builder> {
+    public static class Builder
+        implements
+            BasicBlockBuilderHook,
+            ArithmeticInstructionHook<Builder>,
+            ControlFlowInstructionHook<Builder>,
+            AggregateInstructions<Builder>,
+            VectorInstruction<Builder>,
+            MemoryInstruction<Builder>,
+            MiscInstruction<Builder> {
+
         Identifier.Local identifier;
         List<Instruction> instructions = new ArrayList<>();
         FunctionBody.Builder functionBuilder;
@@ -41,9 +46,9 @@ public record BasicBlock(
 
         public BasicBlock build() {
             return new BasicBlock(
-                    this.identifier,
-                    Collections.unmodifiableList(this.instructions),
-                    this.children
+                this.identifier,
+                Collections.unmodifiableList(this.instructions),
+                this.children
             );
         }
 

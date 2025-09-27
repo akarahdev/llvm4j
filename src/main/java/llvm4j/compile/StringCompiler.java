@@ -3,11 +3,10 @@ package llvm4j.compile;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 
 public class StringCompiler {
+
     StringBuilder inner = new StringBuilder();
 
     private StringCompiler() {}
@@ -21,11 +20,14 @@ public class StringCompiler {
         return this;
     }
 
-    public <T extends Compilable> StringCompiler append(List<T> compilables, String delimiter) {
+    public <T extends Compilable> StringCompiler append(
+        List<T> compilables,
+        String delimiter
+    ) {
         int idx = 0;
-        for(var c : compilables) {
+        for (var c : compilables) {
             this.append(c);
-            if(idx != (compilables.size() - 1)) {
+            if (idx != (compilables.size() - 1)) {
                 this.append(delimiter);
             }
             idx += 1;
@@ -33,7 +35,9 @@ public class StringCompiler {
         return this;
     }
 
-    public <T extends Compilable> StringCompiler append(Optional<T> compilable) {
+    public <T extends Compilable> StringCompiler append(
+        Optional<T> compilable
+    ) {
         compilable.ifPresent(this::append);
         return this;
     }
@@ -71,17 +75,23 @@ public class StringCompiler {
         return this.append("\n" + " ".repeat(count));
     }
 
-    public StringCompiler appendIf(Supplier<Boolean> condition, Consumer<StringCompiler> consumer) {
-        if(condition.get()) consumer.accept(this);
+    public StringCompiler appendIf(
+        Supplier<Boolean> condition,
+        Consumer<StringCompiler> consumer
+    ) {
+        if (condition.get()) consumer.accept(this);
         return this;
     }
 
     public StringCompiler append(String s, Object... args) {
-        for(var arg : args) {
+        for (var arg : args) {
             int idx = s.indexOf("{}");
             if (idx == -1) break;
-            if(arg instanceof Compilable compilable) {
-                s = s.substring(0, idx) + compilable.compile() + s.substring(idx + 2);
+            if (arg instanceof Compilable compilable) {
+                s =
+                    s.substring(0, idx) +
+                    compilable.compile() +
+                    s.substring(idx + 2);
             } else {
                 s = s.substring(0, idx) + arg.toString() + s.substring(idx + 2);
             }

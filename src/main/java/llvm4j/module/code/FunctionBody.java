@@ -6,9 +6,7 @@ import llvm4j.compile.StringCompiler;
 public record FunctionBody(BasicBlock entry) implements Compilable {
     @Override
     public void compile(StringCompiler stringBuilder) {
-        stringBuilder.append("{")
-                .append(entry)
-                .append("\n}");
+        stringBuilder.append("{").append(entry).append("\n}");
     }
 
     public static Builder builder() {
@@ -16,6 +14,7 @@ public record FunctionBody(BasicBlock entry) implements Compilable {
     }
 
     public static class Builder {
+
         BasicBlock entry;
 
         public Builder withCode(BasicBlock.BuildMapper consumer) {

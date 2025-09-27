@@ -1,21 +1,16 @@
 package llvm4j.module.value;
 
-import llvm4j.compile.StringCompiler;
-import llvm4j.module.type.Type;
-
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import llvm4j.compile.StringCompiler;
+import llvm4j.module.type.Type;
 
 public sealed interface Identifier extends Value {
     AtomicInteger INDEX_COUNTER = new AtomicInteger();
 
-    record Global(String identifier) implements Identifier {
+    record Global(String identifier) implements Identifier {}
 
-    }
-
-    record Local(String identifier) implements Identifier {
-
-    }
+    record Local(String identifier) implements Identifier {}
 
     static Global global(String identifier) {
         assert identifier.matches("[-a-zA-Z$._][-a-zA-Z$._0-9]*");
@@ -49,5 +44,4 @@ public sealed interface Identifier extends Value {
     default TypeIdentifierPair parameterized(Type other) {
         return new TypeIdentifierPair(other, this);
     }
-
 }

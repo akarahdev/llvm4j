@@ -1,5 +1,8 @@
 package llvm4j.module;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import llvm4j.compile.Compilable;
 import llvm4j.compile.StringCompiler;
 import llvm4j.module.code.BasicBlock;
@@ -9,30 +12,27 @@ import llvm4j.module.value.Identifier;
 import llvm4j.module.value.TypeIdentifierPair;
 import llvm4j.module.value.TypeValuePair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 public record Function(
-        Identifier.Global name,
-        Type returnType,
-        List<TypeIdentifierPair> parameters,
-        Optional<FunctionBody> functionBody,
-        boolean varargs
+    Identifier.Global name,
+    Type returnType,
+    List<TypeIdentifierPair> parameters,
+    Optional<FunctionBody> functionBody,
+    boolean varargs
 ) implements Compilable {
     @Override
     public void compile(StringCompiler stringBuilder) {
-        stringBuilder.append(functionBody.map(_ -> "define").orElse("declare"))
-                .append(' ')
-                .append(returnType)
-                .append(' ')
-                .append(name)
-                .append('(')
-                .append(this.parameters, ", ")
-                .appendIf(() -> this.varargs, sc -> sc.append(", ..."))
-                .append(')')
-                .append(' ')
-                .append(this.functionBody);
+        stringBuilder
+            .append(functionBody.map(_ -> "define").orElse("declare"))
+            .append(' ')
+            .append(returnType)
+            .append(' ')
+            .append(name)
+            .append('(')
+            .append(this.parameters, ", ")
+            .appendIf(() -> this.varargs, sc -> sc.append(", ..."))
+            .append(')')
+            .append(' ')
+            .append(this.functionBody);
     }
 
     public static Builder builder(Identifier.Global name) {
@@ -40,6 +40,7 @@ public record Function(
     }
 
     public static class Builder {
+
         Identifier.Global name;
         Type returnType = Type.voidType();
         List<TypeIdentifierPair> parameters = new ArrayList<>();
@@ -64,8 +65,15 @@ public record Function(
             return this.withBody(builder -> builder.withCode(consumer));
         }
 
-        public Builder withBody(java.util.function.Function<FunctionBody.Builder, FunctionBody.Builder> body) {
-            this.functionBody = Optional.of(body.apply(new FunctionBody.Builder()).build());
+        public Builder withBody(
+            java.util.function.Function<
+                FunctionBody.Builder,
+                FunctionBody.Builder
+            > body
+        ) {
+            this.functionBody = Optional.of(
+                body.apply(new FunctionBody.Builder()).build()
+            );
             return this;
         }
 
@@ -76,11 +84,11 @@ public record Function(
 
         public Function build() {
             return new Function(
-                    this.name,
-                    this.returnType,
-                    this.parameters,
-                    this.functionBody,
-                    this.varargs
+                this.name,
+                this.returnType,
+                this.parameters,
+                this.functionBody,
+                this.varargs
             );
         }
     }

@@ -1,19 +1,28 @@
 package llvm4j.module.code.builder;
 
-import llvm4j.module.value.TypeValuePair;
 import llvm4j.module.value.Identifier;
+import llvm4j.module.value.TypeValuePair;
 import llvm4j.module.value.Value;
 
-public interface VectorInstruction<T extends VectorInstruction<T>> extends BasicBlockBuilderHook {
+public interface VectorInstruction<T extends VectorInstruction<T>>
+    extends BasicBlockBuilderHook {
     default Value extractElement(TypeValuePair vector, TypeValuePair index) {
         var id = Identifier.localRandom();
-        this.instructions().add(sc -> sc.append("{} = extractelement {}, {}", id, vector, index));
+        this.instructions().add(sc ->
+            sc.append("{} = extractelement {}, {}", id, vector, index)
+        );
         return id;
     }
 
-    default Value insertElement(TypeValuePair vector, TypeValuePair element, TypeValuePair index) {
+    default Value insertElement(
+        TypeValuePair vector,
+        TypeValuePair element,
+        TypeValuePair index
+    ) {
         var id = Identifier.localRandom();
-        this.instructions().add(sc -> sc.append("{} = insertelement {}, {}", id, vector, element, index));
+        this.instructions().add(sc ->
+            sc.append("{} = insertelement {}, {}", id, vector, element, index)
+        );
         return id;
     }
 
@@ -42,9 +51,15 @@ public interface VectorInstruction<T extends VectorInstruction<T>> extends Basic
     ///
     /// For scalable vectors, the only valid mask values at present are zeroinitializer, undef and poison,
     /// since we cannot write all indices as literals for a vector with a length unknown at compile time.
-    default Value shuffleVector(TypeValuePair vector, TypeValuePair other, TypeValuePair mask) {
+    default Value shuffleVector(
+        TypeValuePair vector,
+        TypeValuePair other,
+        TypeValuePair mask
+    ) {
         var id = Identifier.localRandom();
-        this.instructions().add(sc -> sc.append("{} = shufflevector {}, {}, {}", id, vector, other, mask));
+        this.instructions().add(sc ->
+            sc.append("{} = shufflevector {}, {}, {}", id, vector, other, mask)
+        );
         return id;
     }
 }
