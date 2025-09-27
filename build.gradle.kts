@@ -3,14 +3,35 @@ plugins {
     id("maven-publish")
 }
 
-group = "llvm4j"
+group = findProperty("group") ?: "llvm4j"
+version = findProperty("version") ?: "1.0-SNAPSHOT"
 
-version = "1.0-SNAPSHOT"
+repositories {
+    mavenCentral()
+}
 
-repositories { mavenCentral() }
+dependencies {
+    // your deps here
+}
 
-dependencies {}
+tasks.test {
+    failOnNoDiscoveredTests = false
+}
 
-tasks.test { failOnNoDiscoveredTests = false }
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(24))
+    }
+}
 
-java { toolchain { languageVersion = JavaLanguageVersion.of(24) } }
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = project.group.toString()
+            artifactId = "llvm4j"
+            version = project.version.toString()
+        }
+    }
+}
