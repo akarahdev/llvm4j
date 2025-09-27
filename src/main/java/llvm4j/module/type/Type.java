@@ -1,9 +1,8 @@
 package llvm4j.module.type;
 
+import java.util.List;
 import llvm4j.compile.Compilable;
 import llvm4j.module.value.*;
-
-import java.util.List;
 
 public interface Type extends Compilable {
     /// The `void` type does not represent any value and has no size.
@@ -48,12 +47,22 @@ public interface Type extends Compilable {
     /// @param returned The return type of the function type.
     /// @param inputs The parameter types of the function type.
     static Type function(Type returned, List<? extends Type> inputs) {
-        return sc -> sc.append(returned).append('(').append(inputs, ", ").append(')');
+        return sc ->
+            sc.append(returned).append('(').append(inputs, ", ").append(')');
     }
 
-    static Type function(Type returned, List<? extends Type> inputs, boolean variadic) {
-        return sc -> sc.append(returned).append('(').append(inputs, ", ")
-                .appendIf(() -> variadic, sc2 -> sc2.append(", ...")).append(')');
+    static Type function(
+        Type returned,
+        List<? extends Type> inputs,
+        boolean variadic
+    ) {
+        return sc ->
+            sc
+                .append(returned)
+                .append('(')
+                .append(inputs, ", ")
+                .appendIf(() -> variadic, sc2 -> sc2.append(", ..."))
+                .append(')');
     }
 
     static Type named(Identifier identifier) {
@@ -78,7 +87,7 @@ public interface Type extends Compilable {
     ///
     /// @param inner The inner type of the vector.
     /// @param size The size of the vector.
-    static Type vector(int size, Type inner) {
+    static Type vector(long size, Type inner) {
         return sc -> sc.append("<{} x {}>", size, inner);
     }
 
@@ -86,7 +95,7 @@ public interface Type extends Compilable {
     /// The array type requires a size (number of elements) and an underlying data type.
     /// @param inner The element type of the array.
     /// @param size The size of the array.
-    static Type array(int size, Type inner) {
+    static Type array(long size, Type inner) {
         return sc -> sc.append("[{} x {}]", size, inner);
     }
 

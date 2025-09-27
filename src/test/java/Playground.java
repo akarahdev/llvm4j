@@ -12,7 +12,7 @@ public class Playground {
         var module = Module.builder()
             .withGlobalVariable(
                 Identifier.global(".str"),
-                Constant.c_str("Hello world!\\0A\\00")
+                Constant.c_str("Hello world!\n")
             )
             .withFunction(Identifier.global("printf"), fb ->
                 fb

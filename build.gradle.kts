@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
+    id("application")
 }
 
 group = findProperty("group") ?: "llvm4j"

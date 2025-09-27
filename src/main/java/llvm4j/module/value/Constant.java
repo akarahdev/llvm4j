@@ -1,6 +1,7 @@
 package llvm4j.module.value;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import llvm4j.module.type.Type;
 
 public interface Constant extends Value {
@@ -79,29 +80,36 @@ public interface Constant extends Value {
     }
 
     static TypeConstantPair c_str(String str) {
-        String finalStr = str;
         Constant constant = sc ->
-            sc
-                .append('c')
-                .append('"')
-                .append(finalStr.replace("\"", "\\\"").replace("\\n", "\\0A"))
-                .append('"');
-        for (int i = 0; i < 256; i++) {
-            if (i >= 16) {
-                str = str.replace(
-                    "\\" + Integer.toHexString(i).toUpperCase(),
-                    "_"
-                );
-            } else {
-                str = str.replace(
-                    "\\0" + Integer.toHexString(i).toUpperCase(),
-                    "_"
-                );
-            }
-        }
+            sc.append('c').append('"').append(makeStringSafe(str)).append('"');
         return constant.constantTyped(
-            Type.array(str.length(), Type.integer(8))
+            Type.array(safeStringLength(makeStringSafe(str)), Type.integer(8))
         );
+    }
+
+    static String makeStringSafe(String s) {
+        var chs = s
+            .chars()
+            .mapToObj(x ->
+                x < 16 ? "0" + Integer.toHexString(x) : Integer.toHexString(x)
+            )
+            .toList();
+        var sb = new StringBuilder();
+        for (var ch : chs) {
+            sb.append("\\");
+            sb.append(ch);
+        }
+        if(!(sb.toString().endsWith("\\00"))) {
+            sb.append("\\00");
+        }
+        return sb.toString();
+    }
+
+    static long safeStringLength(String s) {
+        return s
+            .chars()
+            .filter(x -> x == '\\')
+            .count();
     }
 
     /// Vector constants are represented with notation similar to vector type definitions (a comma-separated list
