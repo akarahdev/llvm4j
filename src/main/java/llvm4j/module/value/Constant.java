@@ -99,7 +99,7 @@ public interface Constant extends Value {
             sb.append("\\");
             sb.append(ch);
         }
-        if(!(sb.toString().endsWith("\\00"))) {
+        if (!(sb.toString().endsWith("\\00"))) {
             sb.append("\\00");
         }
         return sb.toString();
